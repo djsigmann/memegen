@@ -25,7 +25,7 @@ async def authenticate(request: Request) -> dict:
     api_key = _get_api_key(request)
 
     if api_key:
-        api_mask = api_key[:2] + "***" + api_key[-2:]
+        api_mask = '*' * len(api_key) if len(api_key) < 5 else api_key[0] + '*' * (len(api_key)-2) + api_key[-1]
 
         if settings.REMOTE_TRACKING_URL:
             api = settings.REMOTE_TRACKING_URL + "auth"
