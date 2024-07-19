@@ -21,21 +21,29 @@ def version() -> str:
 )
 async def authenticate(request: Request) -> dict:
     info: dict = {}
-    if settings.REMOTE_TRACKING_URL:
-        api = settings.REMOTE_TRACKING_URL + "auth"
-    else:
-        return info
 
     api_key = _get_api_key(request)
+
     if api_key:
         api_mask = api_key[:2] + "***" + api_key[-2:]
-        logger.info(f"Authenticating with API key: {api_mask}")
-        async with aiohttp.ClientSession() as session:
-            response = await session.get(api, headers={"X-API-KEY": api_key})
-            if response.status >= 500:
-                settings.REMOTE_TRACKING_ERRORS += 1
+
+        if settings.REMOTE_TRACKING_URL:
+            api = settings.REMOTE_TRACKING_URL + "auth"
+
+            logger.info(f"Authenticating with API key: {api_mask}")
+            async with aiohttp.ClientSession() as session:
+                response = await session.get(api, headers={"X-API-KEY": api_key})
+                if response.status >= 500:
+                    settings.REMOTE_TRACKING_ERRORS += 1
+                else:
+                    info = await response.json()
+
+        else:
+            if api_key in settings.VALID_API_KEYS:
+                logger.info(f"Authenticating with API key: {api_mask}")
+                info['image_access'] = True
             else:
-                info = await response.json()
+                logger.info(f"Invalid API key: {api_mask}")
 
     return info
 

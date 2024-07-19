@@ -62,6 +62,10 @@ WATERMARK_ALPHA = 0.65
 
 PREVIEW_TEXT = "PREVIEW"
 
+# Auth
+
+VALID_API_KEYS = [i for i in os.getenv("MEMEGEN_API_KEYS").split(':') if i]
+
 # Test images
 
 TEST_IMAGES_DIRECTORY = ROOT / "app" / "tests" / "images"
